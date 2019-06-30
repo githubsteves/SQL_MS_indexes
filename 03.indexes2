@@ -1,0 +1,82 @@
+--- INDEX DENSITY TEST 
+USE AdventureWorks2008R2;
+GO
+select * from Sales.SalesOrderHeader
+;
+CREATE STATISTICS [st_TotalDue] ON [Sales].[SalesOrderHeader]([TotalDue])
+GO
+;
+CREATE STATISTICS ST_Totaldue2 ON Sales.SalesOrderHeader (TotalDue)
+GO
+;
+DBCC Show_Statistics('Sales.SalesOrderHeader',ST_Totaldue2)
+GO
+;
+Select [DistinctValue]=Count(Distinct TotalDue),
+[Density]=1/CAST(Count(Distinct TotalDue) AS Float) 
+from Sales.SalesOrderHeader 
+GO
+;
+SELECT TotalDue from Sales.SalesOrderHeader
+GROUP BY TotalDue
+;
+--------------------------------------------------------------------------------------
+USE TEST;
+GO
+USE AdventureWorks2012;
+;
+select stats_id, name as 'Statistics Name'
+from sys.stats where object_id = object_id (N'Sales.SalesOrderHeader')
+;
+select * from sys.dm_db_stats_properties (object_id ('Sales.SalesOrderHeader'),3)
+;
+dbcc show_statistics ('dbo.SalesOrderTest', NCI_CustomerID)
+
+-----------------------------------------------------------------------------------------
+--- HOW TO CHECK SELECTIVITY AND DENSITY 
+USE TEST;
+GO
+select * from dbo.student
+;
+select count(DISTINCT id) 
+from student 
+;
+
+CREATE STATISTICS ST_student on student (id)
+;
+DBCC SHOW_STATISTICS (student, ST_student)
+;
+
+------------------------------------------------------------------------------------------
+USE TEST;
+GO
+SELECT * 
+INTO SalesOrderDetail 
+FROM AdventureWorks2012.Sales.SalesOrderDetail
+;
+select *
+from dbo.SalesOrderDetail
+;
+select count(distinct SalesOrderDetailID) 
+from dbo.SalesOrderDetail
+;
+CREATE UNIQUE CLUSTERED INDEX IX_SalesOrderDetailID ON SalesOrderDetail(SalesOrderDetailID)
+;
+CREATE NONCLUSTERED INDEX NCLIX_productid ON SalesOrderDetail(productid)
+;
+DBCC SHOW_STATISTICS('dbo.SalesOrderDetail', 'ix_SalesOrderDetailID')
+;
+SELECT COUNT(DISTINCT SalesOrderDetailID ) FROM SalesOrderDetail
+;
+DBCC SHOW_STATISTICS ('dbo.SalesOrderDetail','NCLIX_productid')
+;
+DBCC SHOW_STATISTICS ('dbo.SalesOrderDetail','NCLIX_productid') WITH DENSITY_VECTOR
+;
+
+select count(distinct productid) 
+from dbo.SalesOrderDetail 
+;
+SELECT ProductID,COUNT(*) 
+FROM dbo.SalesOrderDetail 
+GROUP BY ProductID
+;
