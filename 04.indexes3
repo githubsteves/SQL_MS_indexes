@@ -1,0 +1,53 @@
+
+USE AdventureWorks2012;
+GO
+select * from HumanResources.Employee
+;
+
+USE TEST;
+GO
+select *
+into Employee2
+from AdventureWorks2012.HumanResources.Employee 
+;
+
+select * 
+from dbo.Employee2
+;
+select  count(distinct BusinessEntityID)
+from dbo.Employee2
+;
+CREATE CLUSTERED INDEX CLIX_BusinessEntityID 
+       on dbo.Employee2(BusinessEntityID)
+;
+EXECUTE sp_helpindex Employee2
+;
+DBCC Show_statistics ('dbo.Employee2','CLIX_BusinessEntityID')
+
+----- EXERCISES INDEXES END 
+
+USE AdventureWorks2012;
+GO
+select * from HumanResources.Employee 
+;
+EXECUTE sp_help 'HumanResources.Employee'
+;
+EXECUTE sp_helpindex 'HumanResources.Employee'
+;
+select * from sys.indexes
+;
+select *
+from sys.dm_db_index_physical_stats 
+     (db_id(),object_id(1237579447),1, null,'detailed') 
+;
+select *--count (distinct NationalIDNumber)
+from HumanResources.Employee
+;
+CREATE NONCLUSTERED INDEX NCIX_NationalIDNumber
+       on HumanResources.Employee (NationalIDNumber)
+;
+EXECUTE sp_helpindex 'HumanResources.Employee'
+;
+select *
+from sys.indexes 
+where name like 'NC%'
