@@ -1,0 +1,152 @@
+
+USE TEST;
+GO
+------------ TEST TABLE 
+CREATE TABLE Test
+(
+First varchar(100),
+Last  varchar(100), 
+City  varchar(100)
+);
+
+CREATE CLUSTERED INDEX TestCL 
+       on Test (City) 
+;
+select * from dbo.Test 
+;
+------------ STUDENT TABLE CLUSTERED AND NONCLUSTERED INDEX EXPLANATION 	
+			
+CREATE TABLE student
+(
+    id          INT         NOT NULL,
+    name        VARCHAR(50) NOT NULL,
+    gender      VARCHAR(50) NOT NULL,
+    DOB         datetime NOT NULL,
+    total_score INT NOT NULL,
+    city        VARCHAR(50) NOT NULL
+ );
+ EXECUTE sp_helpindex student 
+ ;
+ INSERT INTO student
+ VALUES  
+(6, 'Kate', 'Female', '03-JAN-1985', 500, 'Liverpool'), 
+(2, 'Jon', 'Male', '02-FEB-1974', 545, 'Manchester'),
+(9, 'Wise', 'Male', '11-NOV-1987', 499, 'Manchester'), 
+(3, 'Sara', 'Female', '07-MAR-1988', 600, 'Leeds'), 
+(1, 'Jolly', 'Female', '12-JUN-1989', 500, 'London'),
+(4, 'Laura', 'Female', '22-DEC-1981', 400, 'Liverpool'),
+(7, 'Joseph', 'Male', '09-APR-1982', 643, 'London'),  
+(5, 'Alan', 'Male', '29-JUL-1993', 500, 'London'), 
+(8, 'Mice', 'Male', '16-AUG-1974', 543, 'Liverpool'),
+(10, 'Elis', 'Female', '28-OCT-1990', 400, 'Leeds')
+;
+select * from student
+;
+CREATE CLUSTERED INDEX CLIX_Students_ID
+       ON student(id)
+;
+CREATE NONCLUSTERED INDEX IX_Gender_Name 
+       ON student(gender) INCLUDE (city)
+;
+ALTER INDEX IX_Gender_Name ON student REBUILD;
+
+
+---
+DROP TABLE student 
+;
+DROP INDEX CLIX_Students_ID on student 
+;
+DROP INDEX IX_Gender_Name on student 
+
+---
+CREATE CLUSTERED INDEX CLIX_tblStudent_Gender_Score
+       ON student(gender ASC, total_score DESC)
+;
+CREATE CLUSTERED INDEX CLIN_Gender_Name 
+       ON student (gender ASC, name ASC) 
+;
+CREATE CLUSTERED INDEX IX_tblStudent_Gender_Score
+ON student(gender ASC, total_score DESC)
+;
+select * from student
+;
+CREATE NONCLUSTERED INDEX IX_tblStudent_Name
+ON student(name ASC)
+;
+select * from student
+;
+select gender, DOB 
+from student
+where name = 'Jon'
+;
+EXECUTE sp_helpindex student 
+;
+
+CREATE TABLE Employee 
+(
+EmployeeID     int            NOT NULL, 
+LastName       nvarchar(30)   NOT NULL, 
+FirstName      nvarchar(30)   NOT NULL, 
+MiddleInitial  nchar(1)       NULL, 
+SSN            char(11)       NOT NULL
+)
+;
+select * from Employee 
+;
+EXECUTE sp_helpindex student;
+;
+
+CREATE TABLE dbo.Book 
+(
+ ISBN          nvarchar (20)  PRIMARY KEY, 
+ Title         nvarchar(50)   NOT NULL, 
+ ReleaseDate   date           NOT NULL, 
+ PublisherID   int            NOT NULL 
+ );
+
+ CREATE NONCLUSTERED INDEX NCLIX_Book_Publisher 
+        ON dbo.Book (PublisherID, ReleaseDate DESC)
+;
+select * from dbo.Book
+;
+EXECUTE sp_helpindex Book  
+;
+DROP TABLE dbo.Book
+;
+
+CREATE TABLE dbo.Book 
+(
+ ISBN          nvarchar (20)  NOT NULL, 
+ Title         nvarchar(50)   NOT NULL, 
+ ReleaseDate   date           NOT NULL, 
+ PublisherID   int            NOT NULL 
+);
+;
+ALTER TABLE dbo.BooK
+ADD CONSTRAINT PK_ISBN PRIMARY KEY 
+               CLUSTERED(ISBN)
+
+CREATE NONCLUSTERED INDEX IX_Book_Publisher 
+       ON dbo.Book (PublisherID, ReleaseDate DESC)
+
+;
+DROP INDEX IX_Book_Publisher on dbo.Book
+;
+ALTER INDEX IX_Book_Publisher on dbo.Book DISABLE 
+;
+ALTER INDEX IX_Book_Publisher on dbo.Book REBUILD WITH (ONLINE = ON)
+;
+
+
+USE AdventureWorks2012;
+GO
+;
+select * from HumanResources.Employee
+;
+EXECUTE sp_helpindex Employee
+;
+EXECUTE sp_helpindex Employee
+
+;
+ALTER INDEX PK_Employee_BusinessEntityID ON HumanResources.Employee REBUILD;
+GO
